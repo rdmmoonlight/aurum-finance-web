@@ -1,0 +1,10 @@
+{
+  "build": {
+    "buildCommand": "./gradlew build",
+    "outputDirectory": "build/dist/js/productionExecutable"
+  },
+  "outputDirectory": "build/dist/js/productionExecutable",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}

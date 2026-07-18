@@ -1,0 +1,8 @@
+{
+  "name": "web-kotlin",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "../../gradlew :apps:web-kotlin:browserDevelopmentRun --continuous",
+    "build": "bash ../../gradlew :apps:web-kotlin:browserProductionWebpack"
+  }
+}
