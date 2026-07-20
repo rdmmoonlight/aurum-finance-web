@@ -1,24 +1,20 @@
-using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using aurum_finance_web.Models;
+using Microsoft.AspNetCore.Authorization;
 
-namespace aurum_finance_web.Controllers;
-
-public class HomeController : Controller
+namespace AuthMvcApp.Controllers
 {
-    public IActionResult Index()
+    public class HomeController : Controller
     {
-        return View();
-    }
+        public IActionResult Index()
+        {
+            return View();
+        }
 
-    public IActionResult Privacy()
-    {
-        return View();
-    }
-
-    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public IActionResult Error()
-    {
-        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        [Authorize]  // Protected by JWT cookie (you may need custom middleware for cookie JWT validation)
+        public IActionResult Welcome()
+        {
+            ViewData["Message"] = "Selamat datang di aplikasi!";
+            return View();
+        }
     }
 }
