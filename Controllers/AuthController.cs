@@ -31,7 +31,6 @@ namespace AurumFinance.Controllers
                 return View(model);
             }
 
-            // 1. Cek apakah email sudah terdaftar di database
             var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == model.Email);
             if (existingUser != null)
             {
@@ -39,16 +38,13 @@ namespace AurumFinance.Controllers
                 return View(model);
             }
 
-            // 2. Buat entity User baru
             var newUser = new User
             {
                 Email = model.Email,
                 FullName = model.FullName,
-                // Sesuai best practice, lakukan hashing password di sini sebelum disimpan
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.Password) 
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.Password)
             };
 
-            // 3. Simpan ke database via EF Core
             _context.Users.Add(newUser);
             await _context.SaveChangesAsync();
 
