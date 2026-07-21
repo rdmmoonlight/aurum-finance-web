@@ -1,0 +1,22 @@
+@{
+    ViewData["Title"] = "Verify Email";
+    bool success = ViewBag.Success ?? false;
+    string message = ViewBag.Message ?? string.Empty;
+}
+
+<div class="container d-flex justify-content-center align-items-center vh-100">
+    <div class="card p-4 shadow-lg text-center" style="width: 100%; max-width: 420px;">
+        <h3 class="mb-3 fw-bold">Email Verification</h3>
+
+        <div class="alert @(success ? "alert-success" : "alert-danger")" role="alert">
+            @message
+        </div>
+
+        @if (!success)
+        {
+            <a asp-controller="Auth" asp-action="ResendVerification" class="btn btn-outline-primary w-100 mb-2">Request a new link</a>
+        }
+
+        <a asp-controller="Auth" asp-action="Login" class="btn btn-primary w-100">Go to Login</a>
+    </div>
+</div>

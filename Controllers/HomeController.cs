@@ -10,7 +10,7 @@ namespace AurumFinance.Controllers
             return View();
         }
 
-        [Authorize]  // Protected by JWT cookie (you may need custom middleware for cookie JWT validation)
+        [Authorize]  // Requires a signed-in cookie session — see Controllers/AuthController.cs and Program.cs.
         public IActionResult Welcome()
         {
             ViewData["Message"] = "Selamat datang di aplikasi!";
