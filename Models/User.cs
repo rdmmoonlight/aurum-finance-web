@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace AuthMvcApp.Models
+namespace AurumFinance.Models
 {
     public class User
     {

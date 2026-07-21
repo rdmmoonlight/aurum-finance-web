@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using AuthMvcApp.Models;
+using AurumFinance.Models;
 
-namespace AuthMvcApp.Models
+namespace AurumFinance.Models
 {
     public class AppDbContext : DbContext
     {

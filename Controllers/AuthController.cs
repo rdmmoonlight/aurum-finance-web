@@ -1,120 +1,59 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Google;
-using AuthMvcApp.Models;
-using System.Security.Claims;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Text;
-using BCrypt.Net;
+using Microsoft.EntityFrameworkCore;
+using AurumFinance.Models;
 
-namespace AuthMvcApp.Controllers
+namespace AurumFinance.Controllers
 {
     public class AuthController : Controller
     {
         private readonly AppDbContext _context;
-        private readonly IConfiguration _config;
 
-        public AuthController(AppDbContext context, IConfiguration config)
+        public AuthController(AppDbContext context)
         {
             _context = context;
-            _config = config;
         }
 
-        public IActionResult Login() => View();
-
-        public IActionResult Register() => View();
-
-        [HttpPost]
-        public async Task<IActionResult> Register(User model)
+        // GET: /Auth/Register
+        [HttpGet]
+        public IActionResult Register()
         {
-            if (ModelState.IsValid)
-            {
-                if (_context.Users.Any(u => u.Email == model.Email))
-                {
-                    ModelState.AddModelError("", "Email already exists.");
-                    return View(model);
-                }
-
-                model.PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.PasswordHash); // Note: PasswordHash field reused for plain password in form
-                _context.Users.Add(model);
-                await _context.SaveChangesAsync();
-                return RedirectToAction("Login");
-            }
+            var model = new RegisterModel();
             return View(model);
         }
 
+        // POST: /Auth/Register
         [HttpPost]
-        public async Task<IActionResult> Login(string email, string password)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Register(RegisterModel model)
         {
-            var user = _context.Users.FirstOrDefault(u => u.Email == email);
-            if (user != null && BCrypt.Net.BCrypt.Verify(password, user.PasswordHash))
+            if (!ModelState.IsValid)
             {
-                var token = GenerateJwtToken(user);
-                Response.Cookies.Append("jwt", token, new CookieOptions { HttpOnly = true, Secure = true });
-                return RedirectToAction("Welcome", "Home");
+                return View(model);
             }
-            ModelState.AddModelError("", "Invalid email or password.");
-            return View();
-        }
 
-        public async Task<IActionResult> GoogleLogin()
-        {
-            await HttpContext.ChallengeAsync(GoogleDefaults.AuthenticationScheme, 
-                new AuthenticationProperties { RedirectUri = Url.Action("GoogleCallback", "Auth") });
-            return new EmptyResult();
-        }
-
-        public async Task<IActionResult> GoogleCallback()
-        {
-            var result = await HttpContext.AuthenticateAsync(GoogleDefaults.AuthenticationScheme);
-            if (result.Succeeded)
+            // 1. Cek apakah email sudah terdaftar di database
+            var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == model.Email);
+            if (existingUser != null)
             {
-                // Handle Google user - create or find in DB, generate JWT
-                var email = result.Principal.FindFirstValue(ClaimTypes.Email);
-                var name = result.Principal.FindFirstValue(ClaimTypes.Name);
-                
-                var user = _context.Users.FirstOrDefault(u => u.Email == email);
-                if (user == null)
-                {
-                    user = new User { Email = email!, FullName = name };
-                    _context.Users.Add(user);
-                    await _context.SaveChangesAsync();
-                }
-
-                var token = GenerateJwtToken(user);
-                Response.Cookies.Append("jwt", token, new CookieOptions { HttpOnly = true, Secure = true });
-                return RedirectToAction("Welcome", "Home");
+                ModelState.AddModelError("Email", "Email address is already registered.");
+                return View(model);
             }
-            return RedirectToAction("Login");
-        }
 
-        private string GenerateJwtToken(User user)
-        {
-            var claims = new[]
+            // 2. Buat entity User baru
+            var newUser = new User
             {
-                new Claim(ClaimTypes.Name, user.Email),
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.GivenName, user.FullName ?? "")
+                Email = model.Email,
+                FullName = model.FullName,
+                // Sesuai best practice, lakukan hashing password di sini sebelum disimpan
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.Password) 
             };
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            // 3. Simpan ke database via EF Core
+            _context.Users.Add(newUser);
+            await _context.SaveChangesAsync();
 
-            var token = new JwtSecurityToken(
-                issuer: _config["Jwt:Issuer"],
-                audience: _config["Jwt:Audience"],
-                claims: claims,
-                expires: DateTime.Now.AddHours(2),
-                signingCredentials: creds);
-
-            return new JwtSecurityTokenHandler().WriteToken(token);
-        }
-
-        public IActionResult Logout()
-        {
-            Response.Cookies.Delete("jwt");
-            return RedirectToAction("Login");
+            TempData["SuccessMessage"] = "Registration successful! Please sign in.";
+            return RedirectToAction("Index", "Home");
         }
     }
 }

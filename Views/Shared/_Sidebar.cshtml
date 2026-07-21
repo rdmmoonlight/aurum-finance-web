@@ -25,15 +25,15 @@
             </a>
         </li>
         <li class="nav-item mb-1">
-            <a asp-controller="User" asp-action="Index" class="nav-link" title="User">
+            <a asp-controller="User" asp-action="Index" class="nav-link" title="Users">
                 <i class="bi bi-people me-3"></i>
-                <span class="menu-text">User</span>
+                <span class="menu-text">Users</span>
             </a>
         </li>
         <li class="nav-item mb-1">
-            <a asp-controller="Transaction" asp-action="Index" class="nav-link" title="Transaction">
+            <a asp-controller="Transaction" asp-action="Index" class="nav-link" title="Transactions">
                 <i class="bi bi-wallet2 me-3"></i>
-                <span class="menu-text">Transaction</span>
+                <span class="menu-text">Transactions</span>
             </a>
         </li>
         <li class="nav-item mb-1">
@@ -45,7 +45,7 @@
     </ul>
 
     <!-- Bottom User Section -->
-    <div class="mt-auto border-top pt-3">
+    <div class="mt-auto border-top pt-3 border-secondary">
         <div class="d-flex align-items-center">
             <i class="bi bi-person-circle fs-3 me-3" title="@(User.Identity?.Name ?? "User")"></i>
             <div class="flex-grow-1 menu-text text-truncate">
@@ -56,9 +56,9 @@
             </a>
         </div>
         
-        <a asp-controller="Auth" asp-action="Logout" class="nav-link mt-3" title="Signout">
+        <a asp-controller="Auth" asp-action="Logout" class="nav-link mt-3" title="Sign Out">
             <i class="bi bi-box-arrow-right me-3"></i>
-            <span class="menu-text">Signout</span>
+            <span class="menu-text">Sign Out</span>
         </a>
     </div>
 </nav>

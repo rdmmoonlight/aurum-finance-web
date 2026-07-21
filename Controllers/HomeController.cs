@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 
-namespace AuthMvcApp.Controllers
+namespace AurumFinance.Controllers
 {
     public class HomeController : Controller
     {
