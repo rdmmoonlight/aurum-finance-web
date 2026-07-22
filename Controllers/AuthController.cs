@@ -29,7 +29,7 @@ namespace AurumFinance.Controllers
         // POST: /Auth/Login
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(LoginViewModel model) // <-- Tambahkan <IActionResult>
+        public async Task<IActionResult> Login(LoginViewModel model)
         {
             if (!ModelState.IsValid)
             {
@@ -64,7 +64,7 @@ namespace AurumFinance.Controllers
         // POST: /Auth/Register
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(RegisterViewModel model) // <-- Tambahkan <IActionResult>
+        public async Task<IActionResult> Register(RegisterViewModel model)
         {
             if (!ModelState.IsValid)
             {
@@ -97,7 +97,7 @@ namespace AurumFinance.Controllers
         // GET: /Auth/Logout
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> Logout() // <-- Tambahkan <IActionResult>
+        public async Task<IActionResult> Logout()
         {
             var refreshToken = await HttpContext.GetTokenAsync(CookieAuthenticationDefaults.AuthenticationScheme, "refresh_token");
             if (!string.IsNullOrEmpty(refreshToken))
@@ -108,7 +108,7 @@ namespace AurumFinance.Controllers
                 }
                 catch (AurumApiException)
                 {
-                    // Token expired/invalid di server, tetap hapus cookie lokal
+                    // Token expired/invalid di server
                 }
             }
 
@@ -126,7 +126,7 @@ namespace AurumFinance.Controllers
         // POST: /Auth/ForgotPassword
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ForgotPassword(ForgotPasswordModel model) // <-- Tambahkan <IActionResult>
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordModel model)
         {
             if (!ModelState.IsValid)
             {
@@ -148,7 +148,7 @@ namespace AurumFinance.Controllers
         // POST: /Auth/ResetPassword
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ResetPassword(ResetPasswordModel model) // <-- Tambahkan <IActionResult>
+        public async Task<IActionResult> ResetPassword(ResetPasswordModel model)
         {
             if (!ModelState.IsValid)
             {
@@ -170,7 +170,7 @@ namespace AurumFinance.Controllers
 
         // GET: /Auth/VerifyEmail?token=...
         [HttpGet]
-        public async Task<IActionResult> VerifyEmail(string token) // <-- Tambahkan <IActionResult>
+        public async Task<IActionResult> VerifyEmail(string token)
         {
             if (string.IsNullOrEmpty(token))
             {
@@ -204,7 +204,7 @@ namespace AurumFinance.Controllers
         // POST: /Auth/ResendVerification
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ResendVerification(ResendVerificationModel model) // <-- Tambahkan <IActionResult>
+        public async Task<IActionResult> ResendVerification(ResendVerificationModel model)
         {
             if (!ModelState.IsValid)
             {

@@ -1,239 +1,77 @@
-using AurumFinance.Exceptions;
-using AurumFinance.Models;
-using AurumFinance.Models.Api;
-using AurumFinance.Services;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+@model AurumFinance.Models.RegisterViewModel
 
-namespace AurumFinance.Controllers
+@{
+    ViewData["Title"] = "Register";
+}
+
+<div class="container d-flex justify-content-center align-items-center vh-100">
+    <div class="card p-4 shadow-lg" style="width: 100%; max-width: 420px;">
+        <h3 class="mb-3 text-center fw-bold">Create Account</h3>
+
+        <!-- Penampung Pesan Error dari Server / API -->
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger p-2 small mb-3" role="alert"></div>
+
+        <form method="post" asp-controller="Auth" asp-action="Register">
+            @Html.AntiForgeryToken()
+
+            <div class="mb-3">
+                <label asp-for="FullName" class="form-label">Full Name</label>
+                <input asp-for="FullName" class="form-control" placeholder="Muhammad Al Fatih" required />
+                <span asp-validation-for="FullName" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Email" class="form-label">Email Address</label>
+                <input asp-for="Email" type="email" class="form-control" placeholder="name@example.com" required />
+                <span asp-validation-for="Email" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Password" class="form-label">Password</label>
+                <input asp-for="Password" type="password" class="form-control" placeholder="••••••••" required />
+                <span asp-validation-for="Password" class="text-danger small"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 mt-2">Sign Up</button>
+        </form>
+
+        <p class="text-center small mt-3 mb-0">
+            Sudah punya akun? <a asp-controller="Auth" asp-action="Login">Login</a>
+        </p>
+    </div>
+</div>
+
+@if (ViewBag.ShowSuccessModal == true)
 {
-    [AllowAnonymous] // Mengizinkan tamu/user anonim mengakses controller ini
-    public class AuthController : Controller
-    {
-        private readonly IAurumApiClient _apiClient;
+    <div class="modal fade show d-block" id="registerSuccessModal" tabindex="-1" role="dialog" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Registrasi Berhasil</h5>
+                    <button type="button" class="btn-close" id="registerSuccessCloseBtn"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-0">
+                        Akun untuk <strong>@ViewBag.RegisteredEmail</strong> berhasil dibuat.
+                        Silakan cek email Anda untuk verifikasi sebelum masuk.
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <a asp-controller="Auth" asp-action="Login" class="btn btn-primary">Ke Halaman Login</a>
+                </div>
+            </div>
+        </div>
+    </div>
 
-        public AuthController(IAurumApiClient apiClient)
-        {
-            _apiClient = apiClient;
-        }
-
-        // GET: /Auth/Login
-        [HttpGet]
-        public IActionResult Login()
-        {
-            return View(new LoginViewModel());
-        }
-
-        // POST: /Auth/Login
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(LoginViewModel model)
-        {
-            if (!ModelState.IsValid)
-            {
-                return View(model);
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var modalEl = document.getElementById('registerSuccessModal');
+            var closeBtn = document.getElementById('registerSuccessCloseBtn');
+            if (closeBtn && modalEl) {
+                closeBtn.addEventListener('click', function () {
+                    modalEl.remove();
+                });
             }
-
-            try
-            {
-                var result = await _apiClient.LoginAsync(model.Email, model.Password);
-                await SignInAsync(result);
-                return RedirectToAction("Index", "Home");
-            }
-            catch (AurumApiException ex)
-            {
-                ModelState.AddModelError(string.Empty, ex.Message);
-                return View(model);
-            }
-            catch (Exception ex)
-            {
-                ModelState.AddModelError(string.Empty, $"Gagal terhubung ke server: {ex.Message}");
-                return View(model);
-            }
-        }
-
-        // GET: /Auth/Register
-        [HttpGet]
-        public IActionResult Register()
-        {
-            return View(new RegisterViewModel());
-        }
-
-        // POST: /Auth/Register
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(RegisterViewModel model)
-        {
-            if (!ModelState.IsValid)
-            {
-                return View(model);
-            }
-
-            try
-            {
-                // 1. Panggil API Backend
-                var result = await _apiClient.RegisterAsync(model.Email, model.Password, model.FullName);
-                
-                // 2. Set Cookie Auth (Optional jika backend mengembalikan token saat register)
-                await SignInAsync(result);
-                
-                // 3. Set data untuk pemicu Pop-Up Modal di View
-                ViewBag.ShowSuccessModal = true;
-                ViewBag.RegisteredEmail = model.Email;
-
-                // Reset form agar inputan bersih
-                ModelState.Clear();
-                return View(new RegisterViewModel());
-            }
-            catch (AurumApiException ex)
-            {
-                ModelState.AddModelError(string.Empty, ex.Message);
-                return View(model);
-            }
-            catch (Exception ex)
-            {
-                ModelState.AddModelError(string.Empty, $"Gagal terhubung ke server backend: {ex.Message}");
-                return View(model);
-            }
-        }
-
-        // GET: /Auth/Logout
-        [HttpGet]
-        [Authorize]
-        public async Task<IActionResult> Logout()
-        {
-            var refreshToken = await HttpContext.GetTokenAsync(CookieAuthenticationDefaults.AuthenticationScheme, "refresh_token");
-            if (!string.IsNullOrEmpty(refreshToken))
-            {
-                try
-                {
-                    await _apiClient.LogoutAsync(refreshToken);
-                }
-                catch (AurumApiException)
-                {
-                    // Token expired/invalid di server, tetap hapus cookie lokal
-                }
-            }
-
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return RedirectToAction("Login", "Auth");
-        }
-
-        // GET: /Auth/ForgotPassword
-        [HttpGet]
-        public IActionResult ForgotPassword()
-        {
-            return View(new ForgotPasswordModel());
-        }
-
-        // POST: /Auth/ForgotPassword
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ForgotPassword(ForgotPasswordModel model)
-        {
-            if (!ModelState.IsValid)
-            {
-                return View(model);
-            }
-
-            await _apiClient.ForgotPasswordAsync(model.Email);
-            TempData["SuccessMessage"] = "Jika email terdaftar, tautan reset password telah dikirimkan.";
-            return RedirectToAction("Login");
-        }
-
-        // GET: /Auth/ResetPassword?token=...
-        [HttpGet]
-        public IActionResult ResetPassword(string token)
-        {
-            return View(new ResetPasswordModel { Token = token ?? string.Empty });
-        }
-
-        // POST: /Auth/ResetPassword
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ResetPassword(ResetPasswordModel model)
-        {
-            if (!ModelState.IsValid)
-            {
-                return View(model);
-            }
-
-            try
-            {
-                await _apiClient.ResetPasswordAsync(model.Token, model.NewPassword);
-                TempData["SuccessMessage"] = "Password berhasil diubah. Silakan masuk menggunakan password baru.";
-                return RedirectToAction("Login");
-            }
-            catch (AurumApiException ex)
-            {
-                ModelState.AddModelError(string.Empty, ex.Message);
-                return View(model);
-            }
-        }
-
-        // GET: /Auth/VerifyEmail?token=...
-        [HttpGet]
-        public async Task<IActionResult> VerifyEmail(string token)
-        {
-            if (string.IsNullOrEmpty(token))
-            {
-                ViewBag.Success = false;
-                ViewBag.Message = "Tautan verifikasi tidak valid.";
-                return View();
-            }
-
-            try
-            {
-                await _apiClient.VerifyEmailAsync(token);
-                ViewBag.Success = true;
-                ViewBag.Message = "Email Anda telah berhasil diverifikasi!";
-            }
-            catch (AurumApiException ex)
-            {
-                ViewBag.Success = false;
-                ViewBag.Message = ex.Message;
-            }
-
-            return View();
-        }
-
-        // GET: /Auth/ResendVerification
-        [HttpGet]
-        public IActionResult ResendVerification()
-        {
-            return View(new ResendVerificationModel());
-        }
-
-        // POST: /Auth/ResendVerification
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ResendVerification(ResendVerificationModel model)
-        {
-            if (!ModelState.IsValid)
-            {
-                return View(model);
-            }
-
-            await _apiClient.ResendVerificationAsync(model.Email);
-            TempData["SuccessMessage"] = "Jika email terdaftar dan belum diverifikasi, link baru telah dikirimkan.";
-            return RedirectToAction("Login");
-        }
-
-        private async Task SignInAsync(AuthApiResponse result)
-        {
-            var principal = AuthPrincipalFactory.Create(result.User);
-
-            var properties = new AuthenticationProperties { IsPersistent = true };
-            properties.StoreTokens(new[]
-            {
-                new AuthenticationToken { Name = "access_token", Value = result.AccessToken },
-                new AuthenticationToken { Name = "refresh_token", Value = result.RefreshToken },
-                new AuthenticationToken { Name = "expires_at_utc", Value = result.ExpiresAtUtc.ToString("o") },
-            });
-
-            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, properties);
-        }
-    }
+        });
+    </script>
 }
