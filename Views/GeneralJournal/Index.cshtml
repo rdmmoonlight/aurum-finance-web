@@ -1,0 +1,78 @@
+@{
+    ViewData["Title"] = "General Journal";
+}
+
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1"><i class="bi bi-journal-bookmark me-2 text-warning"></i> General Journal</h2>
+            <p class="text-muted mb-0">Chronological record of financial transactions for Aurum Finance.</p>
+        </div>
+        <div>
+            <button class="btn btn-outline-light me-2"><i class="bi bi-funnel me-1"></i> Filter</button>
+            <button class="btn btn-warning fw-semibold"><i class="bi bi-plus-lg me-1"></i> Add Entry</button>
+        </div>
+    </div>
+
+    <!-- General Journal Table -->
+    <div class="card bg-dark border-secondary text-white shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-dark table-hover align-middle mb-0">
+                    <thead class="table-active border-bottom border-secondary">
+                        <tr>
+                            <th>Date</th>
+                            <th>Reference</th>
+                            <th>Account & Description</th>
+                            <th class="text-end">Debit (USD)</th>
+                            <th class="text-end">Credit (USD)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="text-nowrap">2026-07-22</td>
+                            <td><code>GJ-2026-001</code></td>
+                            <td>
+                                <div class="fw-bold">Cash</div>
+                                <div class="text-muted ms-3 small">Initial Capital Investment</div>
+                            </td>
+                            <td class="text-end text-success fw-semibold">$100,000.00</td>
+                            <td class="text-end text-muted">-</td>
+                        </tr>
+                        <tr>
+                            <td class="text-nowrap">2026-07-22</td>
+                            <td><code>GJ-2026-001</code></td>
+                            <td>
+                                <div class="fw-bold ms-3">Owner's Equity</div>
+                                <div class="text-muted ms-3 small">Initial Capital Investment</div>
+                            </td>
+                            <td class="text-end text-muted">-</td>
+                            <td class="text-end text-danger fw-semibold">$100,000.00</td>
+                        </tr>
+                        <tr>
+                            <td class="text-nowrap">2026-07-21</td>
+                            <td><code>GJ-2026-002</code></td>
+                            <td>
+                                <div class="fw-bold">Rent Expense</div>
+                                <div class="text-muted ms-3 small">Monthly Office Rent Payment</div>
+                            </td>
+                            <td class="text-end text-success fw-semibold">$15,000.00</td>
+                            <td class="text-end text-muted">-</td>
+                        </tr>
+                        <tr>
+                            <td class="text-nowrap">2026-07-21</td>
+                            <td><code>GJ-2026-002</code></td>
+                            <td>
+                                <div class="fw-bold ms-3">Cash</div>
+                                <div class="text-muted ms-3 small">Monthly Office Rent Payment</div>
+                            </td>
+                            <td class="text-end text-muted">-</td>
+                            <td class="text-end text-danger fw-semibold">$15,000.00</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
