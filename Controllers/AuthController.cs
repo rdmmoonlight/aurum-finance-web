@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace AurumFinance.Controllers
 {
-    [AllowAnonymous] // <--- Wajib tambahkan ini agar user anonim/tamu bisa akses
+    [AllowAnonymous] // Mengizinkan tamu/user anonim mengakses controller ini
     public class AuthController : Controller
     {
         private readonly IAurumApiClient _apiClient;
@@ -25,10 +25,87 @@ namespace AurumFinance.Controllers
         {
             return View(new LoginViewModel());
         }
-        
-        // GET: /Auth/Logout — a plain link (see Views/Shared/_Sidebar.cshtml), so this is GET, not POST.
+
+        // POST: /Auth/Login
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Login(LoginViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            try
+            {
+                var result = await _apiClient.LoginAsync(model.Email, model.Password);
+                await SignInAsync(result);
+                return RedirectToAction("Index", "Home"); // Atau "Welcome" / "Dashboard"
+            }
+            catch (AurumApiException ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError(string.Empty, $"Gagal terhubung ke server: {ex.Message}");
+                return View(model);
+            }
+        }
+
+        // =========================================================================
+        // GET: /Auth/Register (SEBELUMNYA HILANG - PENYEBAB HALAMAN KOSONG)
+        // =========================================================================
         [HttpGet]
-        [Authorize]
+        public IActionResult Register()
+        {
+            return View(new RegisterViewModel());
+        }
+
+        // =========================================================================
+        // POST: /Auth/Register (SEBELUMNYA HILANG - PENYEBAB SUBMIT GAGAL)
+        // =========================================================================
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Register(RegisterViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            try
+            {
+                // 1. Panggil API Backend
+                var result = await _apiClient.RegisterAsync(model.Email, model.Password, model.FullName);
+                
+                // 2. Set cookie autentikasi
+                await SignInAsync(result);
+                
+                // 3. Tampilkan pesan sukses
+                TempData["SuccessMessage"] = "Registrasi berhasil! Link verifikasi telah dikirim ke email Anda.";
+                
+                // 4. Redirect ke Halaman Utama / Dashboard
+                return RedirectToAction("Index", "Home");
+            }
+            catch (AurumApiException ex)
+            {
+                // Error dari API (misal: Email sudah terdaftar)
+                ModelState.AddModelError(string.Empty, ex.Message);
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                // Error umum (misal: API offline / koneksi gagal)
+                ModelState.AddModelError(string.Empty, $"Gagal terhubung ke server backend: {ex.Message}");
+                return View(model);
+            }
+        }
+
+        // GET: /Auth/Logout
+        [HttpGet]
+        [Authorize] // Khusus Logout, wajib login dulu
         public async Task<IActionResult> Logout()
         {
             var refreshToken = await HttpContext.GetTokenAsync(CookieAuthenticationDefaults.AuthenticationScheme, "refresh_token");
@@ -40,13 +117,12 @@ namespace AurumFinance.Controllers
                 }
                 catch (AurumApiException)
                 {
-                    // Token was already invalid/expired server-side — the
-                    // local cookie still needs clearing regardless.
+                    // Token expired/invalid di server, tetap hapus cookie lokal
                 }
             }
 
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Login", "Auth");
         }
 
         // GET: /Auth/ForgotPassword
@@ -66,11 +142,8 @@ namespace AurumFinance.Controllers
                 return View(model);
             }
 
-            // Always the same message whether or not the email is
-            // registered — the backend itself never reveals account
-            // existence either (see Aurum.Api's AuthService.ForgotPasswordAsync).
             await _apiClient.ForgotPasswordAsync(model.Email);
-            TempData["SuccessMessage"] = "If that email is registered, a password reset link has been sent.";
+            TempData["SuccessMessage"] = "Jika email terdaftar, tautan reset password telah dikirimkan.";
             return RedirectToAction("Login");
         }
 
@@ -94,7 +167,7 @@ namespace AurumFinance.Controllers
             try
             {
                 await _apiClient.ResetPasswordAsync(model.Token, model.NewPassword);
-                TempData["SuccessMessage"] = "Your password has been reset. Please sign in with your new password.";
+                TempData["SuccessMessage"] = "Password berhasil diubah. Silakan masuk menggunakan password baru.";
                 return RedirectToAction("Login");
             }
             catch (AurumApiException ex)
@@ -111,7 +184,7 @@ namespace AurumFinance.Controllers
             if (string.IsNullOrEmpty(token))
             {
                 ViewBag.Success = false;
-                ViewBag.Message = "This verification link is invalid.";
+                ViewBag.Message = "Tautan verifikasi tidak valid.";
                 return View();
             }
 
@@ -119,7 +192,7 @@ namespace AurumFinance.Controllers
             {
                 await _apiClient.VerifyEmailAsync(token);
                 ViewBag.Success = true;
-                ViewBag.Message = "Your email has been verified.";
+                ViewBag.Message = "Email Anda telah berhasil diverifikasi!";
             }
             catch (AurumApiException ex)
             {
@@ -147,9 +220,8 @@ namespace AurumFinance.Controllers
                 return View(model);
             }
 
-            // Same non-enumeration reasoning as ForgotPassword.
             await _apiClient.ResendVerificationAsync(model.Email);
-            TempData["SuccessMessage"] = "If that email is registered and not yet verified, a new verification link has been sent.";
+            TempData["SuccessMessage"] = "Jika email terdaftar dan belum diverifikasi, link baru telah dikirimkan.";
             return RedirectToAction("Login");
         }
 

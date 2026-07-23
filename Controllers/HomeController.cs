@@ -5,16 +5,14 @@ namespace AurumFinance.Controllers
 {
     public class HomeController : Controller
     {
-        public IActionResult Index()
+[AllowAnonymous] // Biar bisa ditembak tamu
+    public IActionResult Index()
+    {
+        if (!User.Identity.IsAuthenticated)
         {
-            return View();
+            return RedirectToAction("Login", "Auth");
         }
-
-        [Authorize]  // Requires a signed-in cookie session — see Controllers/AuthController.cs and Program.cs.
-        public IActionResult Welcome()
-        {
-            ViewData["Message"] = "Selamat datang di aplikasi!";
-            return View();
-        }
+        return View();
+    }
     }
 }
