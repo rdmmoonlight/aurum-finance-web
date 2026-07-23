@@ -1,0 +1,61 @@
+@* Views/Shared/_TopBar.cshtml *@
+
+<header class="navbar navbar-expand border-bottom px-3 py-0 bg-body-tertiary" style="height: 36px; min-height: 36px;">
+    <div class="container-fluid p-0 d-flex align-items-center justify-content-between h-100">
+        
+        <!-- 1. Left Section: Title -->
+        <div class="d-flex align-items-center me-2" style="max-width: 160px;">
+            <span class="fw-semibold text-truncate text-body" style="font-size: 0.8rem;">
+                @(ViewData["Title"] ?? "Dashboard")
+            </span>
+        </div>
+
+        <!-- 2. Center Section: Quran Verse Partial -->
+        <div class="d-none d-md-flex align-items-center justify-content-center flex-grow-1 mx-2 overflow-hidden text-center" style="max-width: 650px; height: 100%;">
+            <partial name="_QuranVerse" />
+        </div>
+
+        <!-- Right Section: Hanya Lup & 3 Titik -->
+        <div class="d-flex align-items-center gap-0">
+            
+            <!-- 3. Ikon Lup (Search) -->
+            <button class="btn btn-sm btn-link text-secondary p-1 border-0 shadow-none lh-1" type="button" data-bs-toggle="modal" data-bs-target="#searchModal" aria-label="Search">
+                <i class="bi bi-search" style="font-size: 0.825rem;"></i>
+            </button>
+
+            <!-- 4. Menu 3 Titik (Kebab Menu) -->
+            <div class="dropdown">
+                <button class="btn btn-sm btn-link text-secondary p-1 border-0 shadow-none lh-1" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="More Options">
+                    <i class="bi bi-three-dots-vertical" style="font-size: 0.875rem;"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="font-size: 0.8rem;">
+                    <li><h6 class="dropdown-header py-1" style="font-size: 0.725rem;">Aksi Halaman</h6></li>
+                    <li><a class="dropdown-item py-1" href="#"><i class="bi bi-printer me-2 text-secondary"></i>Cetak Halaman</a></li>
+                    <li><a class="dropdown-item py-1" href="#"><i class="bi bi-file-earmark-excel me-2 text-success"></i>Ekspor ke Excel</a></li>
+                    <li><hr class="dropdown-divider my-1"></li>
+                    <li><h6 class="dropdown-header py-1" style="font-size: 0.725rem;">Pengaturan Tema</h6></li>
+                    <li><button type="button" class="dropdown-item py-1 d-flex align-items-center gap-2" onclick="setAppTheme('dark')"><i class="bi bi-moon-stars-fill text-warning"></i> Gelap</button></li>
+                    <li><button type="button" class="dropdown-item py-1 d-flex align-items-center gap-2" onclick="setAppTheme('light')"><i class="bi bi-sun-fill text-warning"></i> Terang</button></li>
+                    <li><hr class="dropdown-divider my-1"></li>
+                    <li><a class="dropdown-item py-1 text-danger" href="#"><i class="bi bi-box-arrow-right me-2"></i>Keluar</a></li>
+                </ul>
+            </div>
+
+        </div>
+    </div>
+</header>
+
+<!-- Search Modal -->
+<div class="modal fade" id="searchModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-top modal-sm">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-body p-2">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-transparent border-0 text-secondary"><i class="bi bi-search"></i></span>
+                    <input type="search" class="form-control border-0 shadow-none" placeholder="Cari transaksi, akun..." autofocus>
+                    <button type="button" class="btn-close ms-2 my-auto" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

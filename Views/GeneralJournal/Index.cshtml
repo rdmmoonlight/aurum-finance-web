@@ -3,17 +3,19 @@
 }
 
 <div class="container-fluid">
-    <!-- Page Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="mb-1"><i class="bi bi-journal-bookmark me-2 text-warning"></i> General Journal</h2>
-            <p class="text-muted mb-0">Chronological record of financial transactions for Aurum Finance.</p>
-        </div>
-        <div>
-            <button class="btn btn-outline-light me-2"><i class="bi bi-funnel me-1"></i> Filter</button>
-            <button class="btn btn-warning fw-semibold"><i class="bi bi-plus-lg me-1"></i> Add Entry</button>
-        </div>
+   <!-- Page Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-1"><i class="bi bi-journal-bookmark me-2 text-warning"></i> General Journal</h2>
+        <p class="text-muted mb-0">Chronological record of financial transactions for Aurum Finance.</p>
     </div>
+    <div>
+        <button class="btn btn-outline-light me-2"><i class="bi bi-funnel me-1"></i> Filter</button>
+        <a asp-action="Create" class="btn btn-warning fw-semibold">
+            <i class="bi bi-plus-lg me-1"></i> Add Entry
+        </a>
+    </div>
+</div>
 
     <!-- General Journal Table -->
     <div class="card bg-dark border-secondary text-white shadow-sm">
@@ -23,50 +25,48 @@
                     <thead class="table-active border-bottom border-secondary">
                         <tr>
                             <th>Date</th>
-                            <th>Reference</th>
-                            <th>Account & Description</th>
-                            <th class="text-end">Debit (USD)</th>
-                            <th class="text-end">Credit (USD)</th>
+                            <th>Account</th>
+                            <th>Description</th>
+                            <th class="text-center">Ref.</th>
+                            <th class="text-end">Debit</th>
+                            <th class="text-end">Credit</th>
                         </tr>
                     </thead>
                     <tbody>
+                        <!-- Transaksi 1: Debit -->
                         <tr>
-                            <td class="text-nowrap">2026-07-22</td>
-                            <td><code>GJ-2026-001</code></td>
-                            <td>
-                                <div class="fw-bold">Cash</div>
-                                <div class="text-muted ms-3 small">Initial Capital Investment</div>
-                            </td>
+                            <td class="text-nowrap">22-07-2026</td>
+                            <td class="fw-bold">Cash</td>
+                            <td class="text-muted small">Initial Capital Investment</td>
+                            <td class="text-center"><code>GJ-2026-001</code></td>
                             <td class="text-end text-success fw-semibold">$100,000.00</td>
                             <td class="text-end text-muted">-</td>
                         </tr>
+                        <!-- Transaksi 1: Kredit (Di-indentasi) -->
                         <tr>
-                            <td class="text-nowrap">2026-07-22</td>
-                            <td><code>GJ-2026-001</code></td>
-                            <td>
-                                <div class="fw-bold ms-3">Owner's Equity</div>
-                                <div class="text-muted ms-3 small">Initial Capital Investment</div>
-                            </td>
+                            <td class="text-nowrap">22-07-2026</td>
+                            <td class="fw-bold ps-4">Owner's Equity</td>
+                            <td class="text-muted small">Initial Capital Investment</td>
+                            <td class="text-center"><code>GJ-2026-001</code></td>
                             <td class="text-end text-muted">-</td>
                             <td class="text-end text-danger fw-semibold">$100,000.00</td>
                         </tr>
+
+                        <!-- Transaksi 2: Debit -->
                         <tr>
-                            <td class="text-nowrap">2026-07-21</td>
-                            <td><code>GJ-2026-002</code></td>
-                            <td>
-                                <div class="fw-bold">Rent Expense</div>
-                                <div class="text-muted ms-3 small">Monthly Office Rent Payment</div>
-                            </td>
+                            <td class="text-nowrap">22-07-2026</td>
+                            <td class="fw-bold">Rent Expense</td>
+                            <td class="text-muted small">Monthly Office Rent Payment</td>
+                            <td class="text-center"><code>GJ-2026-002</code></td>
                             <td class="text-end text-success fw-semibold">$15,000.00</td>
                             <td class="text-end text-muted">-</td>
                         </tr>
+                        <!-- Transaksi 2: Kredit (Di-indentasi) -->
                         <tr>
-                            <td class="text-nowrap">2026-07-21</td>
-                            <td><code>GJ-2026-002</code></td>
-                            <td>
-                                <div class="fw-bold ms-3">Cash</div>
-                                <div class="text-muted ms-3 small">Monthly Office Rent Payment</div>
-                            </td>
+                            <td class="text-nowrap">22-07-2026</td>
+                            <td class="fw-bold ps-4">Cash</td>
+                            <td class="text-muted small">Monthly Office Rent Payment</td>
+                            <td class="text-center"><code>GJ-2026-002</code></td>
                             <td class="text-end text-muted">-</td>
                             <td class="text-end text-danger fw-semibold">$15,000.00</td>
                         </tr>

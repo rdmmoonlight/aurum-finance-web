@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace AurumFinance.Controllers
 {
+    [AllowAnonymous] // <--- Wajib tambahkan ini agar user anonim/tamu bisa akses
     public class AuthController : Controller
     {
         private readonly IAurumApiClient _apiClient;
@@ -24,62 +25,7 @@ namespace AurumFinance.Controllers
         {
             return View(new LoginViewModel());
         }
-
-        // POST: /Auth/Login
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(LoginViewModel model)
-        {
-            if (!ModelState.IsValid)
-            {
-                return View(model);
-            }
-
-            try
-            {
-                var result = await _apiClient.LoginAsync(model.Email, model.Password);
-                await SignInAsync(result);
-                return RedirectToAction("Welcome", "Home");
-            }
-            catch (AurumApiException ex)
-            {
-                ModelState.AddModelError(string.Empty, ex.Message);
-                return View(model);
-            }
-        }
-
-        // GET: /Auth/Register
-        [HttpGet]
-        public IActionResult Register()
-        {
-            var model = new RegisterViewModel();
-            return View(model);
-        }
-
-        // POST: /Auth/Register
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(RegisterViewModel model)
-        {
-            if (!ModelState.IsValid)
-            {
-                return View(model);
-            }
-
-            try
-            {
-                var result = await _apiClient.RegisterAsync(model.Email, model.Password, model.FullName);
-                await SignInAsync(result);
-                TempData["SuccessMessage"] = "Registration successful! We've sent a verification link to your email.";
-                return RedirectToAction("Welcome", "Home");
-            }
-            catch (AurumApiException ex)
-            {
-                ModelState.AddModelError(string.Empty, ex.Message);
-                return View(model);
-            }
-        }
-
+        
         // GET: /Auth/Logout — a plain link (see Views/Shared/_Sidebar.cshtml), so this is GET, not POST.
         [HttpGet]
         [Authorize]

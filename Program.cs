@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Authorization; // <-- Tambahan
+using Microsoft.AspNetCore.Mvc.Authorization; // <-- Tambahan
 using Microsoft.EntityFrameworkCore;
 using AurumFinance.Models;
 using AurumFinance.Services;
@@ -10,8 +12,15 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// 2. MVC Services
-builder.Services.AddControllersWithViews();
+// 2. MVC Services + Kunci Semua Halaman Secara Global
+builder.Services.AddControllersWithViews(options =>
+{
+    // Ini mengunci SELURUH Controller dan Action secara default
+    var policy = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
+    options.Filters.Add(new AuthorizeFilter(policy));
+});
 
 // 3. HTTP Client
 var apiBaseUrl = builder.Configuration["Api:BaseUrl"]
@@ -22,7 +31,6 @@ builder.Services.AddHttpClient<IAurumApiClient, AurumApiClient>(client =>
 });
 
 // 4. Authentication Configuration
-// Cek kredensial dari "Authentication:Google:..." (User Secrets / Railway Env Vars)
 var googleClientId = builder.Configuration["Authentication:Google:ClientId"] 
     ?? builder.Configuration["Google:ClientId"];
 var googleClientSecret = builder.Configuration["Authentication:Google:ClientSecret"] 
@@ -38,7 +46,6 @@ var authBuilder = builder.Services.AddAuthentication(CookieAuthenticationDefault
         options.Events.OnValidatePrincipal = CookieAuthEvents.ValidateAsync;
     });
 
-// Daftarkan Google Auth HANYA jika ClientId dan ClientSecret valid (tidak kosong)
 if (!string.IsNullOrWhiteSpace(googleClientId) && !string.IsNullOrWhiteSpace(googleClientSecret))
 {
     authBuilder.AddGoogle(GoogleDefaults.AuthenticationScheme, googleOptions =>
