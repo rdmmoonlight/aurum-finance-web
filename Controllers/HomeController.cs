@@ -1,18 +1,21 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
 
 namespace AurumFinance.Controllers
 {
     public class HomeController : Controller
     {
-[AllowAnonymous] // Biar bisa ditembak tamu
-    public IActionResult Index()
-    {
-        if (!User.Identity.IsAuthenticated)
+        public IActionResult Index()
         {
-            return RedirectToAction("Login", "Auth");
+            // Tampilkan halaman Home (Index.cshtml) beserta semua muatannya,
+            // tanpa peduli apakah user sudah login atau belum.
+            return View();
         }
-        return View();
-    }
+
+        public IActionResult Privacy()
+        {
+            return View();
+        }
+        
+        // ... action lain seperti Welcome, dll.
     }
 }
